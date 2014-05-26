@@ -26,12 +26,12 @@ SHELL := /bin/bash
 
 # The default make command.
 # Change this to 'lib' if you are building a library.
-DEFAULT = help
+DEFAULT = lib
 
 EXAMPLE_FILES = examples/*.rs
 SOURCE_FILES = $(shell test -e src/ && find src -type f)
 
-COMPILER = lib
+COMPILER = rustc
 
 # For release:
   COMPILER_FLAGS = -O
