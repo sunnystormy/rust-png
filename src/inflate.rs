@@ -482,7 +482,7 @@ impl InflateStream {
         left
     }
 
-    fn next_state(&mut self, data: &[u8]) -> Result<uint, StrBuf> {
+    fn next_state(&mut self, data: &[u8]) -> Result<uint, String> {
         macro_rules! ok_bytes (($n:expr, $state:expr) => ({
             self.state = Some($state);
             Ok($n)
@@ -838,7 +838,7 @@ impl InflateStream {
     }
 
     #[allow(dead_code)]
-    pub fn update<'a>(&'a mut self, mut data: &[u8]) -> Result<(uint, &'a [u8]), StrBuf> {
+    pub fn update<'a>(&'a mut self, mut data: &[u8]) -> Result<(uint, &'a [u8]), String> {
         let original_size = data.len();
         let original_pos = self.pos as uint;
         while data.len() > 0 &&

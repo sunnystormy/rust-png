@@ -75,7 +75,7 @@ pub struct Image {
 pub enum ImageState<'a> {
     Partial(Option<&'a Image>),
     Complete(Image),
-    Error(StrBuf)
+    Error(String)
 }
 
 static MAGIC: [u8, ..8] = [
@@ -101,7 +101,7 @@ struct Ihdr {
 }
 
 impl Ihdr {
-    fn get_color_type(&self) -> Result<ColorType, StrBuf> {
+    fn get_color_type(&self) -> Result<ColorType, String> {
         let bits = self.bits;
         let invalid = |name| Err(format!("invalid bit depth {} for color type {} ({:s})",
                                          bits, self.color_type, name));
@@ -140,7 +140,7 @@ impl Ihdr {
         })
     }
 
-    fn to_image(&self) -> Result<PartialImage, StrBuf> {
+    fn to_image(&self) -> Result<PartialImage, String> {
         let color_type = match self.get_color_type() {
             Ok(c) => c,
             Err(m) => return Err(m)
@@ -273,7 +273,7 @@ struct PartialImage {
 }
 
 impl PartialImage {
-    fn update_idat(&mut self, mut data: &[u8]) -> Result<(), StrBuf> {
+    fn update_idat(&mut self, mut data: &[u8]) -> Result<(), String> {
         let mut scanline_pos = self.scanline_pos;
         let mut filter = self.filter;
 
@@ -787,7 +787,7 @@ impl Decoder {
         }
     }
 
-    fn next_state(&mut self, data: &[u8]) -> Result<uint, StrBuf> {
+    fn next_state(&mut self, data: &[u8]) -> Result<uint, String> {
         let b = data[0];
         macro_rules! ok2 (($n:expr, $state:expr) => ({
             self.state = Some($state);
@@ -1066,7 +1066,7 @@ pub fn is_png(image: &[u8]) -> bool {
 
 #[allow(dead_code)]
 #[allow(deprecated_owned_vector)]
-pub fn load_png(path: &Path) -> Result<Image, StrBuf> {
+pub fn load_png(path: &Path) -> Result<Image, String> {
     match File::open_mode(path, io::Open, io::Read) {
         Ok(mut r) => match r.read_to_end() {
             Ok(data) => load_png_from_memory(data.as_slice()),
@@ -1077,7 +1077,7 @@ pub fn load_png(path: &Path) -> Result<Image, StrBuf> {
 }
 
 #[allow(dead_code)]
-pub fn load_png_from_memory(image: &[u8]) -> Result<Image, StrBuf> {
+pub fn load_png_from_memory(image: &[u8]) -> Result<Image, String> {
     let mut decoder = Some(box Decoder::new());
     match decoder.update(image) {
         Partial(_) => Err("incomplete PNG file".to_owned()),
