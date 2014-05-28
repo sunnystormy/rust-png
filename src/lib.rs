@@ -16,6 +16,7 @@
 
 #[phase(syntax, link)]
 extern crate log;
+extern crate debug;
 
 #[cfg(test)]
 extern crate extra;
@@ -148,7 +149,7 @@ impl Ihdr {
 
         let color_decoded = match color_type {
             K1 | K2 | K4 | K8 | KA8 => KA8,
-            K16 | KA16 | RGB16 | RGBA16 => return Err("unsupported bit depth of 16".to_owned()),
+            K16 | KA16 | RGB16 | RGBA16 => return Err("unsupported bit depth of 16".to_string()),
             _ => RGBA8
         };
 
@@ -803,7 +804,7 @@ impl Decoder {
 
         let state = match self.state {
             Some(state) => state,
-            None => return Err("called png::Decoder::next_state with non-existent state".to_owned())
+            None => return Err("called png::Decoder::next_state with non-existent state".to_string())
         };
 
         match state {
@@ -867,7 +868,7 @@ impl Decoder {
                 match name {
                     "IHDR" => {
                         if self.image.is_some() {
-                            Err("duplicate IHDR".to_owned())
+                            Err("duplicate IHDR".to_string())
                         } else if size != size_of::<Ihdr>() as u32 {
                             Err(format!("IHDR size mismatch, expected {} but found {}", size_of::<Ihdr>(), size))
                         } else {
@@ -879,12 +880,12 @@ impl Decoder {
                             Err(format!("PLTE has non multiple of 3 size {}", size))
                         } else {
                             match self.image {
-                                None => Err("PLTE before IHDR".to_owned()),
+                                None => Err("PLTE before IHDR".to_string()),
                                 Some(ref mut image) => {
                                     if image.idat_inflate_stream.is_some() {
-                                        Err("PLTE after IDAT".to_owned())
+                                        Err("PLTE after IDAT".to_string())
                                     } else if image.palette.is_some() {
-                                        Err("duplicate PLTE".to_owned())
+                                        Err("duplicate PLTE".to_string())
                                     } else if !image.color_type.is_palette() {
                                         // Ignore a palette that's not used to decode the image.
                                         ok!(IgnoreChunk(size))
@@ -898,10 +899,10 @@ impl Decoder {
                     }
                     "tRNS" => {
                         match self.image {
-                            None => Err("tRNS before IHDR".to_owned()),
+                            None => Err("tRNS before IHDR".to_string()),
                             Some(ref mut image) => {
                                 if image.idat_inflate_stream.is_some() {
-                                    Err("tRNS after IDAT".to_owned())
+                                    Err("tRNS after IDAT".to_string())
                                 } else {
                                     match image.color_type {
                                         K1 | K2 | K4 | K8 | K16 => ok!(U16(U16TrnsK)),
@@ -915,10 +916,10 @@ impl Decoder {
                     }
                     "IDAT" => {
                         if self.image.is_none() {
-                            Err("IDAT before IHDR".to_owned())
+                            Err("IDAT before IHDR".to_string())
                         } else if self.image.as_ref().unwrap().color_type.is_palette()
                             && self.image.as_ref().unwrap().palette.is_none() {
-                            Err("IDAT before PLTE".to_owned())
+                            Err("IDAT before PLTE".to_string())
                         } else {
                             let stream = &mut self.image.as_mut().unwrap().idat_inflate_stream;
                             if stream.is_none() {
@@ -1050,7 +1051,7 @@ impl DecoderRef for Option<Box<Decoder>> {
                     _ => Complete(decoder.image.take_unwrap().image)
                 }
             }
-            None => Error("called Option<~png::Decoder>::update on None".to_owned())
+            None => Error("called Option<~png::Decoder>::update on None".to_string())
         }
     }
 }
@@ -1080,7 +1081,7 @@ pub fn load_png(path: &Path) -> Result<Image, String> {
 pub fn load_png_from_memory(image: &[u8]) -> Result<Image, String> {
     let mut decoder = Some(box Decoder::new());
     match decoder.update(image) {
-        Partial(_) => Err("incomplete PNG file".to_owned()),
+        Partial(_) => Err("incomplete PNG file".to_string()),
         Complete(image) => Ok(image),
         Error(m) => Err(m)
     }

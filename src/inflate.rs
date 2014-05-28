@@ -541,7 +541,7 @@ impl InflateStream {
                 }
 
                 if dict {
-                    return Err("unimplemented ZLIB FDICT=1".to_owned());
+                    return Err("unimplemented ZLIB FDICT=1".to_string());
                 }
 
                 ok_bytes!(1, Bits(BlockHeader, BitState { n: 0, v: 0 }))
@@ -584,7 +584,7 @@ impl InflateStream {
                         let (final, block_type) = ((h & 1) != 0, (h >> 1) & 0b11);
 
                         if self.final_block {
-                            return Err("DEFLATE data after the final block".to_owned());
+                            return Err("DEFLATE data after the final block".to_string());
                         }
 
                         self.final_block = final;
