@@ -7,6 +7,7 @@
 // option. This file may not be copied, modified, or distributed
 // except according to those terms.
 
+#![allow(unused_attribute)]
 #![crate_id = "png#0.1"]
 #![crate_type = "lib"]
 #![feature(macro_rules, phase)]
