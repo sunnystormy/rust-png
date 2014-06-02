@@ -35,7 +35,7 @@ use inflate::InflateStream;
 
 mod inflate;
 
-#[deriving(Eq)]
+#[deriving(PartialEq, Eq)]
 pub enum ColorType {
     K1, K2, K4, K8, K16,
     KA8, KA16,
